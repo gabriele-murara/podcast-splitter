@@ -14,9 +14,18 @@ class SingleFileProcessor(HasLogger):
     __track = None
     __seconds = 0
     __output_directory = None
+    __verbose = False
 
-    def __init__(self, track, output_directory, seconds=60):
-        super().__init__(self.__class__.__name__)
+    def __init__(
+            self,
+            track,
+            output_directory,
+            seconds=60,
+            log_filename="",
+            verbose=False
+    ):
+        super().__init__(self.__class__.__name__, log_filename, verbose)
+        self.__verbose = verbose
         self.__track = track
         self.__seconds = seconds
         self.__output_directory = output_directory
@@ -28,19 +37,26 @@ class SingleFileProcessor(HasLogger):
         )
         self.logger.info(msg)
 
-        msg = "seconds is a {} and total_seconds is a {}".format(
-            type(self.__seconds), type(total_seconds)
-        )
-        self.logger.info(msg)
+        # msg = "seconds is a {} and total_seconds is a {}".format(
+        #     type(self.__seconds), type(total_seconds)
+        # )
+        # self.logger.info(msg)
         nr_of_split = math.ceil(total_seconds / self.__seconds)
-        msg = "Start to split track into {} tracks of {} seconds".format(
-            nr_of_split, self.__seconds
+        msg = "Start to split track '{}' into {} tracks of {} seconds. "
+        msg += "Output is saved to {}"
+        msg = msg.format(
+            self.__track.path,
+            nr_of_split,
+            self.__seconds,
+            self.__output_directory
         )
         self.logger.info(msg)
+        if not self.__verbose:
+            print(msg)
         file_type = mimetypes.guess_type(self.__track.path)[0]
         _, file_extension = os.path.splitext(self.__track.path)
         if file_type is not None:
-            # Estrai l'estensione dal tipo di file
+            # Get extension from file's type
             if file_type == 'audio/mpeg':
                 file_extension = 'mp3'
                 file_type = 'mp3'
@@ -86,10 +102,3 @@ class SingleFileProcessor(HasLogger):
 
             start_time += self.__seconds * 1000
             end_time += self.__seconds * 1000
-
-
-
-
-
-
-

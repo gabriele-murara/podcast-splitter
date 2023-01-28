@@ -28,6 +28,14 @@ parser.add_argument(
     required=True
 )
 
+parser.add_argument(
+    '-v',
+    '--verbose',
+    help='Shows logs messages to console',
+    action='store_true',
+    required=False
+)
+
 
 if __name__ == '__main__':
     args = parser.parse_args()

@@ -4,6 +4,9 @@ import eyed3
 
 from classes.abstracts.has_logger import HasLogger
 from classes.multiple_file_processor import MultipleFileProcessor
+import os
+from dotenv import load_dotenv
+import tempfile
 
 
 class Command(HasLogger):
@@ -13,12 +16,31 @@ class Command(HasLogger):
     __seconds = 60
     __output_directory = None
     __validation_errors = []
-    __files_to_precess = []
+    __files_to_process = []
+    __log_filename = ""
+    __verbose = False
     logger = None
 
     def __init__(self, args):
-        super().__init__(self.__class__.__name__)
-        self.__files_to_precess = []
+        load_dotenv()
+
+        log_file_path = os.getenv('LOG_FILE_PATH')
+        if not log_file_path:
+            tmp_path = tempfile.gettempdir()
+            log_file_path = os.path.join(tmp_path, "tracce_a_pezzi.log")
+        self.__log_filename = log_file_path
+        self.__verbose = False
+        if args.verbose:
+            self.__verbose = args.verbose
+        super().__init__(
+            self.__class__.__name__, self.__log_filename, self.__verbose
+        )
+        if not self.verbose:
+            msg = "Log messages are written to '{}'. Use --verbose for display "
+            msg += "log messages in the standard output"
+            print(msg.format(self.__log_filename))
+
+        self.__files_to_process = []
         if not self.__validate(args):
             msg = "{} validation errors detected:".format(
                 len(self.__validation_errors)
@@ -102,11 +124,11 @@ class Command(HasLogger):
                 file = os.path.join(self.__tracks_directory, filename)
                 if os.path.isfile(file):
                     self.__check_single_audio_file(file)
-        msg = "Collected {} files:".format(len(self.__files_to_precess))
+        msg = "Collected {} files:".format(len(self.__files_to_process))
         self.logger.info(msg)
-        for audio_file in self.__files_to_precess:
-            msg = "--> '{}'".format(audio_file.path)
-            self.logger.info(msg)
+        # for audio_file in self.__files_to_process:
+        #     msg = "--> '{}'".format(audio_file.path)
+        #     self.logger.info(msg)
 
     def __check_single_audio_file(self, audio_file_path):
         if audio_file_path is not None:
@@ -117,13 +139,17 @@ class Command(HasLogger):
                 )
                 self.logger.warning(msg)
             else:
-                self.__files_to_precess.append(audio_file)
+                self.__files_to_process.append(audio_file)
 
     def run(self):
         self.__collect_files()
         msg = "Start to process..."
         self.logger.info(msg)
         processor = MultipleFileProcessor(
-            self.__files_to_precess, self.__output_directory, self.__seconds
+            self.__files_to_process,
+            self.__output_directory,
+            self.__seconds,
+            self.__log_filename,
+            self.__verbose,
         )
         processor.process_files()

@@ -24,6 +24,24 @@ $ cd podcast-splitter
 $ pip install -r requirements.txt
 ```
 
+### Configuration
+
+By default, log messages are written to the file tracce_a_pezzi.log in 
+the system's temp dir.
+If you want to change the log path, copy .env.sample to .env and valorize
+the LOG_FILE_PATH variable.
+
+```commandline
+$ cp .env.sample .env
+```
+
+Otherwise you can set the environment variable LOG_FILE_PATH 
+
+```commandline
+$ LOG_FILE_PATH=/tmp/from_env.log
+$ export LOG_FILE_PATH
+```
+
 ### Help
 
 ```commandline
