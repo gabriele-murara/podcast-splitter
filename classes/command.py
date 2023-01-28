@@ -35,7 +35,7 @@ class Command(HasLogger):
         super().__init__(
             self.__class__.__name__, self.__log_filename, self.__verbose
         )
-        if not self.verbose:
+        if not self.is_verbose():
             msg = "Log messages are written to '{}'. Use --verbose for display "
             msg += "log messages in the standard output"
             print(msg.format(self.__log_filename))
