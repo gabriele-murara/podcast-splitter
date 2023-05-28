@@ -1,7 +1,6 @@
 import argparse
 
 from classes.command import Command
-from classes.single_file_processor import SingleFileProcessor
 
 
 parser = argparse.ArgumentParser(
@@ -20,6 +19,15 @@ parser.add_argument(
     '--seconds',
     type=int,
     help="The number of seconds of each splitted track"
+)
+
+by_silence_help = "Split the track by silence. If this flag is passed, "
+by_silence_help += "--seconds is skipped."
+parser.add_argument(
+    '-b',
+    '--by-silence',
+    action='store_true',
+    help=by_silence_help
 )
 parser.add_argument(
     '-o',
@@ -41,8 +49,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
     command = Command(args)
     command.run()
-    # print(args)
-    # path = "/media/gabriele/DOCUMENTI/Development/TracceAPezziWorkspace/20221116215626_radio_bomboclat_16112022.mp3"
-    # processor = SingleFileProcessor(path)
-    # processor.split_tracks()
 

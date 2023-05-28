@@ -14,6 +14,7 @@ class Command(HasLogger):
     __track_filename = None
     __tracks_directory = None
     __seconds = 60
+    __split_by_silence = False
     __output_directory = None
     __validation_errors = []
     __files_to_process = []
@@ -59,6 +60,8 @@ class Command(HasLogger):
             self.__track_filename = args.filename
         if args.directory is not None:
             self.__tracks_directory = args.directory
+        if args.by_silence and args.by_silence is True:
+            self.__split_by_silence = True
         if args.seconds is not None:
             try:
                 self.__seconds = int(args.seconds)
@@ -73,12 +76,12 @@ class Command(HasLogger):
                 msg = msg.format(args.seconds, str(ex))
                 self.__validation_errors.append(msg)
                 is_valid = False
-        else:
+        elif not self.__split_by_silence:
             msg = "No seconds passed. Fallback to default {}".format(
                 self.__seconds
             )
             self.logger.warn(msg)
-        if self.__seconds <= 0:
+        if not self.__split_by_silence and self.__seconds <= 0:
             msg = "Passed seconds '{}' is not a valid value. It must be "
             msg += "a positive integer number."
             msg = msg.format(args.seconds)
@@ -151,5 +154,6 @@ class Command(HasLogger):
             self.__seconds,
             self.__log_filename,
             self.__verbose,
+            self.__split_by_silence,
         )
         processor.process_files()
