@@ -1,3 +1,5 @@
-eyed3==0.9.7
-pydub==0.25.1
-python-dotenv==0.21.1
+wheel
+setuptools
+eyed3
+pydub
+python-dotenv

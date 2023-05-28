@@ -5,7 +5,7 @@ A simple command line tool for split long audio files (like a podcast) into smal
 
 ### Requirements
 
-python-3.9
+python>=3.6
 ffmpeg
 
 ### Install
