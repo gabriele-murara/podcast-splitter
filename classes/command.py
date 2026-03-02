@@ -18,29 +18,41 @@ class Command(HasLogger):
     __output_directory = None
     __validation_errors = []
     __files_to_process = []
-    __log_filename = ""
-    __verbose = False
     logger = None
 
-    def __init__(self, args):
+    def __init__(self, **kwargs):
         load_dotenv()
+
+        #####################################################################
+        # FIXME attributes to manage
+        self.__track_filename = kwargs.get('track_filename', None)
+        self.__tracks_directory = kwargs.get('tracks_directory', None)
+        self.__seconds = kwargs.get('seconds', 60)
+        self.__split_by_silence = kwargs.get('split_by_silence', False)
+        self.__output_directory = kwargs.get('output_directory', None)
+        self.__validation_errors = kwargs.get('validation_errors', [])
+        self.__files_to_process = kwargs.get('files_to_process', [])
+        #####################################################################
 
         log_file_path = os.getenv('LOG_FILE_PATH')
         if not log_file_path:
             tmp_path = tempfile.gettempdir()
             log_file_path = os.path.join(tmp_path, "tracce_a_pezzi.log")
-        self.__log_filename = log_file_path
-        self.__verbose = False
-        if args.verbose:
-            self.__verbose = args.verbose
+
+        self.__log_filename = kwargs.get('log_filename', log_file_path)
+        self.__verbose = kwargs.get('verbose', False)
+
+        # FIXME fix this constructor
         super().__init__(
             self.__class__.__name__, self.__log_filename, self.__verbose
         )
+
         if not self.is_verbose():
             msg = "Log messages are written to '{}'. Use --verbose for display "
             msg += "log messages in the standard output"
             print(msg.format(self.__log_filename))
 
+        # FIXME validation doesnt work
         self.__files_to_process = []
         if not self.__validate(args):
             msg = "{} validation errors detected:".format(
@@ -157,3 +169,75 @@ class Command(HasLogger):
             self.__split_by_silence,
         )
         processor.process_files()
+
+    @property
+    def track_filename(self):
+        return self.__track_filename
+
+    @track_filename.setter
+    def track_filename(self, value):
+        self.__track_filename = value
+
+    @property
+    def tracks_directory(self):
+        return self.__tracks_directory
+
+    @tracks_directory.setter
+    def tracks_directory(self, value):
+        self.__tracks_directory = value
+
+    @property
+    def seconds(self):
+        return self.__seconds
+
+    @seconds.setter
+    def seconds(self, value):
+        self.__seconds = value
+
+    @property
+    def split_by_silence(self):
+        return self.__split_by_silence
+
+    @split_by_silence.setter
+    def split_by_silence(self, value):
+        self.__split_by_silence = value
+
+    @property
+    def output_directory(self):
+        return self.__output_directory
+
+    @output_directory.setter
+    def output_directory(self, value):
+        self.__output_directory = value
+
+    @property
+    def validation_errors(self):
+        return self.__validation_errors
+
+    @validation_errors.setter
+    def validation_errors(self, value):
+        self.__validation_errors = value
+
+    @property
+    def files_to_process(self):
+        return self.__files_to_process
+
+    @files_to_process.setter
+    def files_to_process(self, value):
+        self.__files_to_process = value
+
+    @property
+    def log_filename(self):
+        return self.__log_filename
+
+    @log_filename.setter
+    def log_filename(self, value):
+        self.__log_filename = value
+
+    @property
+    def verbose(self):
+        return self.__verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        self.__verbose = value
