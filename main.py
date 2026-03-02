@@ -1,13 +1,23 @@
 import argparse
 
 from classes.command import Command
-
+from version import get_app_name, get_version
 
 parser = argparse.ArgumentParser(
-    prog='Tracce a Pezzi',
-    description='A program that splits auto tracks and apply metadata',
+    prog='Podcast Splitter',
+    description='A program that splits audio tracks and apply metadata',
     epilog='Text at the bottom of help'
 )
+
+parser.add_argument(
+    '--version',
+    help='Shows version number',
+    action='version',
+    version='{} - v. {}'.format(
+        get_app_name(), get_version()
+    )
+)
+
 parser.add_argument(
     '-f', '--filename', help="The filename of the track to split"
 )
@@ -44,9 +54,12 @@ parser.add_argument(
     required=False
 )
 
-
 if __name__ == '__main__':
     args = parser.parse_args()
+    print(args)
+    if args.version:
+        print("print")
+        exit(0)
     command = Command(args)
     command.run()
 
