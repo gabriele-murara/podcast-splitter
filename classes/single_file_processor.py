@@ -1,3 +1,4 @@
+import datetime
 import math
 import mimetypes
 import os
@@ -11,29 +12,19 @@ from classes.abstracts.has_logger import HasLogger
 
 class SingleFileProcessor(HasLogger):
 
-    __track = None
-    __seconds = 0
-    __output_directory = None
-    __verbose = False
-
-    def __init__(
-            self,
-            track,
-            output_directory,
-            seconds=60,
-            log_filename="",
-            verbose=False
-    ):
-        super().__init__(self.__class__.__name__, log_filename, verbose)
-        self.__verbose = verbose
-        self.__track = track
-        self.__seconds = seconds
-        self.__output_directory = output_directory
+    def __init__(self, **kwargs):
+        self.__track = kwargs.get('track', None)
+        self.__output_directory = kwargs.get('output_directory', None)
+        self.__seconds = kwargs.get('seconds', 60)
+        log_filename = kwargs.get('log_filename', "")
+        self.__verbose = kwargs.get('verbose', False)
+        super().__init__(self.__class__.__name__, log_filename, self.__verbose)
 
     def split_track(self):
         total_seconds = self.__track.info.time_secs
-        msg = "Track {} is {} seconds long".format(
-            self.__track.path, total_seconds
+        timestamp = str(datetime.timedelta(seconds=total_seconds))
+        msg = "Track {} is {} seconds long ({})".format(
+            self.__track.path, total_seconds, timestamp
         )
         self.logger.info(msg)
 
@@ -103,3 +94,43 @@ class SingleFileProcessor(HasLogger):
             start_time += self.__seconds * 1000
             end_time += self.__seconds * 1000
         self.logger.info("Done!")
+
+    @property
+    def track(self):
+        return self.__track
+
+    @track.setter
+    def track(self, value):
+        self.__track = value
+
+    @property
+    def output_directory(self):
+        return self.__output_directory
+
+    @output_directory.setter
+    def output_directory(self, value):
+        self.__output_directory = value
+
+    @property
+    def seconds(self):
+        return self.__seconds
+
+    @seconds.setter
+    def seconds(self, value):
+        self.__seconds = value
+
+    @property
+    def log_filename(self):
+        return self.__log_filename
+
+    @log_filename.setter
+    def log_filename(self, value):
+        self.__log_filename = value
+
+    @property
+    def verbose(self):
+        return self.__verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        self.__verbose = value

@@ -1,3 +1,4 @@
+import datetime
 import mimetypes
 import os
 from pathlib import Path
@@ -11,26 +12,18 @@ from classes.abstracts.has_logger import HasLogger
 
 class BySilenceSingleFileProcessor(HasLogger):
 
-    __track = None
-    __output_directory = None
-    __verbose = False
-
-    def __init__(
-            self,
-            track,
-            output_directory,
-            log_filename="",
-            verbose=False
-    ):
-        super().__init__(self.__class__.__name__, log_filename, verbose)
-        self.__verbose = verbose
-        self.__track = track
-        self.__output_directory = output_directory
+    def __init__(self, **kwargs):
+        self.__track = kwargs.get('track', None)
+        self.__output_directory = kwargs.get('output_directory', None)
+        log_filename = kwargs.get('log_filename', "")
+        self.__verbose = kwargs.get('verbose', False)
+        super().__init__(self.__class__.__name__, log_filename, self.__verbose)
 
     def split_track(self):
         total_seconds = self.__track.info.time_secs
-        msg = "Track {} is {} seconds long".format(
-            self.__track.path, total_seconds
+        timestamp = str(datetime.timedelta(seconds=total_seconds))
+        msg = "Track {} is {} seconds long ({})".format(
+            self.__track.path, total_seconds, timestamp
         )
         self.logger.info(msg)
 
@@ -117,3 +110,35 @@ class BySilenceSingleFileProcessor(HasLogger):
             track_with_metadata.tag.track_num = i
             track_with_metadata.tag.save()
         self.logger.info("Done!")
+
+    @property
+    def track(self):
+        return self.__track
+
+    @track.setter
+    def track(self, value):
+        self.__track = value
+
+    @property
+    def output_directory(self):
+        return self.__output_directory
+
+    @output_directory.setter
+    def output_directory(self, value):
+        self.__output_directory = value
+
+    @property
+    def log_filename(self):
+        return self.__log_filename
+
+    @log_filename.setter
+    def log_filename(self, value):
+        self.__log_filename = value
+
+    @property
+    def verbose(self):
+        return self.__verbose
+
+    @verbose.setter
+    def verbose(self, value):
+        self.__verbose = value

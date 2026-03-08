@@ -11,20 +11,12 @@ import tempfile
 
 class Command(HasLogger):
 
-    __track_filename = None
-    __tracks_directory = None
-    __seconds = 60
-    __split_by_silence = False
-    __output_directory = None
-    __validation_errors = []
-    __files_to_process = []
-    logger = None
-
     def __init__(self, **kwargs):
         load_dotenv()
 
-        #####################################################################
-        # FIXME attributes to manage
+        # FIXME remove
+        logger = None
+
         self.__track_filename = kwargs.get('track_filename', None)
         self.__tracks_directory = kwargs.get('tracks_directory', None)
         self.__seconds = kwargs.get('seconds', 60)
@@ -32,7 +24,6 @@ class Command(HasLogger):
         self.__output_directory = kwargs.get('output_directory', None)
         self.__validation_errors = kwargs.get('validation_errors', [])
         self.__files_to_process = kwargs.get('files_to_process', [])
-        #####################################################################
 
         log_file_path = os.getenv('LOG_FILE_PATH')
         if not log_file_path:
@@ -54,7 +45,7 @@ class Command(HasLogger):
 
         # FIXME validation doesnt work
         self.__files_to_process = []
-        if not self.__validate(args):
+        if not self.__validate(kwargs):
             msg = "{} validation errors detected:".format(
                 len(self.__validation_errors)
             )
@@ -68,24 +59,24 @@ class Command(HasLogger):
     def __validate(self, args):
         self.__validation_errors = []
         is_valid = True
-        if args.filename is not None:
-            self.__track_filename = args.filename
-        if args.directory is not None:
-            self.__tracks_directory = args.directory
-        if args.by_silence and args.by_silence is True:
+        if 'filename' in args.keys() and args['filename'] is not None:
+            self.__track_filename = args['filename']
+        if 'directory' in args.keys() and args['directory'] is not None:
+            self.__tracks_directory = args['directory']
+        if 'by_silence' in args.keys() and args['by_silence'] is True:
             self.__split_by_silence = True
-        if args.seconds is not None:
+        if 'seconds' in args.keys() and args['seconds'] is not None:
             try:
-                self.__seconds = int(args.seconds)
+                self.__seconds = int(args['seconds'])
             except ValueError as vex:
                 msg = "Passed seconds '{}' is not a valid value. It must be "
                 msg += "a positive integer number. Details: {}"
-                msg = msg.format(args.seconds, str(vex))
+                msg = msg.format(args['seconds'], str(vex))
                 self.__validation_errors.append(msg)
                 is_valid = False
             except Exception as ex:
                 msg = "An error occurred during parse seconds '{}'. Details {}"
-                msg = msg.format(args.seconds, str(ex))
+                msg = msg.format(args['seconds'], str(ex))
                 self.__validation_errors.append(msg)
                 is_valid = False
         elif not self.__split_by_silence:
@@ -96,11 +87,11 @@ class Command(HasLogger):
         if not self.__split_by_silence and self.__seconds <= 0:
             msg = "Passed seconds '{}' is not a valid value. It must be "
             msg += "a positive integer number."
-            msg = msg.format(args.seconds)
+            msg = msg.format(args['seconds'])
             self.__validation_errors.append(msg)
             is_valid = False
-        if args.output is not None:
-            self.__output_directory = args.output
+        if 'output' in args.keys() and args['output'] is not None:
+            self.__output_directory = args['output']
         else:
             is_valid = False
             msg = "No 'output' passed. Cannot process."
@@ -160,14 +151,16 @@ class Command(HasLogger):
         self.__collect_files()
         msg = "Start to process..."
         self.logger.info(msg)
-        processor = MultipleFileProcessor(
-            self.__files_to_process,
-            self.__output_directory,
-            self.__seconds,
-            self.__log_filename,
-            self.__verbose,
-            self.__split_by_silence,
-        )
+
+        processing_mapping = {
+            'audio_files': self.__files_to_process,
+            'output_directory': self.__output_directory,
+            'seconds': self.__seconds,
+            'log_filename': self.__log_filename,
+            'verbose': self.__verbose,
+            'split_by_silence': self.__split_by_silence,
+        }
+        processor = MultipleFileProcessor(**processing_mapping)
         processor.process_files()
 
     @property

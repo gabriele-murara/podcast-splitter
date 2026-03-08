@@ -28,6 +28,7 @@ parser.add_argument(
     '-s',
     '--seconds',
     type=int,
+    default=60,
     help="The number of seconds of each splitted track"
 )
 
@@ -56,10 +57,6 @@ parser.add_argument(
 
 if __name__ == '__main__':
     args = parser.parse_args()
-    print(args)
-    if args.version:
-        print("print")
-        exit(0)
-    command = Command(args)
+    command = Command(**vars(args))
     command.run()
 
