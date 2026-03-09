@@ -19,9 +19,15 @@ class Command(HasLogger):
 
         self.__track_filename = kwargs.get('track_filename', None)
         self.__tracks_directory = kwargs.get('tracks_directory', None)
-        self.__seconds = kwargs.get('seconds', 60)
-        self.__split_by_silence = kwargs.get('split_by_silence', False)
-        self.__output_directory = kwargs.get('output_directory', None)
+        self.__seconds = kwargs.get(
+            'seconds', os.getenv('SPLIT_SECONDS', default=None)
+        )
+        self.__split_by_silence = kwargs.get(
+            'split_by_silence', os.getenv('SPLIT_BY_SILENCE', default=False)
+        )
+        self.__output_directory = kwargs.get(
+            'output_directory', os.getenv('OUTPUT_DIRECTORY', default=None)
+        )
         self.__validation_errors = kwargs.get('validation_errors', [])
         self.__files_to_process = kwargs.get('files_to_process', [])
 
@@ -31,7 +37,9 @@ class Command(HasLogger):
             log_file_path = os.path.join(tmp_path, "tracce_a_pezzi.log")
 
         self.__log_filename = kwargs.get('log_filename', log_file_path)
-        self.__verbose = kwargs.get('verbose', False)
+        self.__verbose = kwargs.get(
+            'verbose', os.getenv('VERBOSE', default=False)
+        )
 
         # FIXME fix this constructor
         super().__init__(
@@ -63,9 +71,8 @@ class Command(HasLogger):
             self.__track_filename = args['filename']
         if 'directory' in args.keys() and args['directory'] is not None:
             self.__tracks_directory = args['directory']
-        if 'by_silence' in args.keys() and args['by_silence'] is True:
-            self.__split_by_silence = True
-        if 'seconds' in args.keys() and args['seconds'] is not None:
+
+        if self.__seconds:
             try:
                 self.__seconds = int(args['seconds'])
             except ValueError as vex:
@@ -84,18 +91,14 @@ class Command(HasLogger):
                 self.__seconds
             )
             self.logger.warn(msg)
+
         if not self.__split_by_silence and self.__seconds <= 0:
             msg = "Passed seconds '{}' is not a valid value. It must be "
             msg += "a positive integer number."
             msg = msg.format(args['seconds'])
             self.__validation_errors.append(msg)
             is_valid = False
-        if 'output' in args.keys() and args['output'] is not None:
-            self.__output_directory = args['output']
-        else:
-            is_valid = False
-            msg = "No 'output' passed. Cannot process."
-            self.__validation_errors.append(msg)
+
         file_path = self.__track_filename
         dir_path = self.__tracks_directory
         if file_path is None and dir_path is None:

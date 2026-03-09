@@ -1,7 +1,12 @@
 import argparse
+import os
 
 from classes.command import Command
+from classes.print_envs_action import PrintEnvs
 from version import get_app_name, get_version
+from dotenv import load_dotenv
+
+load_dotenv()
 
 parser = argparse.ArgumentParser(
     prog='Podcast Splitter',
@@ -19,15 +24,23 @@ parser.add_argument(
 )
 
 parser.add_argument(
-    '-f', '--filename', help="The filename of the track to split"
+    '-f',
+    '--filename',
+    required=True,
+    help="The filename of the track to split"
 )
 parser.add_argument(
-    '-d', '--directory', help="The directory of tracks to split"
+
+    '-d',
+    '--directory',
+    help="The directory of tracks to split",
+    required=False
 )
 parser.add_argument(
     '-s',
     '--seconds',
     type=int,
+    required=False,
     default=60,
     help="The number of seconds of each splitted track"
 )
@@ -38,13 +51,16 @@ parser.add_argument(
     '-b',
     '--by-silence',
     action='store_true',
+    required=False,
+    default=False,
     help=by_silence_help
 )
 parser.add_argument(
     '-o',
     '--output',
     help="The destination directory of splitted files",
-    required=True
+    required=False,
+    default=(os.getenv('OUTPUT_DIRECTORY', default=None))
 )
 
 parser.add_argument(
@@ -55,8 +71,19 @@ parser.add_argument(
     required=False
 )
 
+parser.add_argument(
+    '--envs',
+    help='Print environments',
+    action=PrintEnvs,
+    nargs=0,
+    required=False
+)
+
+
 if __name__ == '__main__':
+
     args = parser.parse_args()
-    command = Command(**vars(args))
+    var_args = vars(args)
+    command = Command(**var_args)
     command.run()
 
