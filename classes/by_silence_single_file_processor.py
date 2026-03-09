@@ -27,7 +27,7 @@ class BySilenceSingleFileProcessor(HasLogger):
         )
         self.logger.info(msg)
 
-        msg = "Start to split track '{}' by silence."
+        msg = "Start to split track '{}' by silence. "
         msg += "Output is saved to {}"
         msg = msg.format(
             self.__track.path,

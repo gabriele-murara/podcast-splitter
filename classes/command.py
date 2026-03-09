@@ -1,6 +1,8 @@
 import os.path
+from venv import logger
 
 import eyed3
+from boolifyer.booleans import Booleans
 
 from classes.abstracts.has_logger import HasLogger
 from classes.multiple_file_processor import MultipleFileProcessor
@@ -14,16 +16,14 @@ class Command(HasLogger):
     def __init__(self, **kwargs):
         load_dotenv()
 
-        # FIXME remove
-        logger = None
-
         self.__track_filename = kwargs.get('track_filename', None)
         self.__tracks_directory = kwargs.get('tracks_directory', None)
         self.__seconds = kwargs.get(
             'seconds', os.getenv('SPLIT_SECONDS', default=None)
         )
         self.__split_by_silence = kwargs.get(
-            'split_by_silence', os.getenv('SPLIT_BY_SILENCE', default=False)
+            'by_silence',
+            Booleans.to_boolean(os.getenv('SPLIT_BY_SILENCE', default=False))
         )
         self.__output_directory = kwargs.get(
             'output_directory', os.getenv('OUTPUT_DIRECTORY', default=None)
@@ -38,7 +38,8 @@ class Command(HasLogger):
 
         self.__log_filename = kwargs.get('log_filename', log_file_path)
         self.__verbose = kwargs.get(
-            'verbose', os.getenv('VERBOSE', default=False)
+            'verbose',
+            Booleans.to_boolean(os.getenv('VERBOSE', default=False))
         )
 
         # FIXME fix this constructor
@@ -47,8 +48,8 @@ class Command(HasLogger):
         )
 
         if not self.is_verbose():
-            msg = "Log messages are written to '{}'. Use --verbose for display "
-            msg += "log messages in the standard output"
+            msg = "Log messages are written to '{}'. Use --verbose for "
+            msg += "display log messages in the standard output"
             print(msg.format(self.__log_filename))
 
         # FIXME validation doesnt work
@@ -98,6 +99,11 @@ class Command(HasLogger):
             msg = msg.format(args['seconds'])
             self.__validation_errors.append(msg)
             is_valid = False
+
+        if self.__split_by_silence and self.__seconds > 0:
+            msg = "Both seconds '{}' and 'split-by-silence' passed. "
+            msg += "The track will be splitted by silence"
+            self.logger.warning(msg.format(self.__seconds))
 
         file_path = self.__track_filename
         dir_path = self.__tracks_directory

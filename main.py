@@ -1,6 +1,8 @@
 import argparse
 import os
 
+from boolifyer.booleans import Booleans
+
 from classes.command import Command
 from classes.print_envs_action import PrintEnvs
 from version import get_app_name, get_version
@@ -52,7 +54,7 @@ parser.add_argument(
     '--by-silence',
     action='store_true',
     required=False,
-    default=False,
+    default=Booleans.to_boolean(os.getenv('SPLIT_BY_SILENCE', default=False)),
     help=by_silence_help
 )
 parser.add_argument(
@@ -68,7 +70,8 @@ parser.add_argument(
     '--verbose',
     help='Shows logs messages to console',
     action='store_true',
-    required=False
+    required=False,
+    default=Booleans.to_boolean(os.getenv('VERBOSE', default=False))
 )
 
 parser.add_argument(
