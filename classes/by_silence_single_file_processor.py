@@ -4,20 +4,24 @@ import os
 from pathlib import Path
 
 import eyed3
+from boolifyer.booleans import Booleans
+from nano_logger.nano_logger import NanoLogger
 from pydub import AudioSegment
 from pydub.silence import split_on_silence
 
-from classes.abstracts.has_logger import HasLogger
 
-
-class BySilenceSingleFileProcessor(HasLogger):
+class BySilenceSingleFileProcessor:
 
     def __init__(self, **kwargs):
         self.__track = kwargs.get('track', None)
         self.__output_directory = kwargs.get('output_directory', None)
-        log_filename = kwargs.get('log_filename', "")
-        self.__verbose = kwargs.get('verbose', False)
-        super().__init__(self.__class__.__name__, log_filename, self.__verbose)
+        self.__verbose = kwargs.get(
+            'verbose',
+            Booleans.to_boolean(os.getenv(
+                'NANO_LOGGER_WRITE_TO_CONSOLE', default=False
+            ))
+        )
+        self.logger = NanoLogger(write_to_console=self.__verbose)
 
     def split_track(self):
         total_seconds = self.__track.info.time_secs
@@ -34,8 +38,7 @@ class BySilenceSingleFileProcessor(HasLogger):
             self.__output_directory
         )
         self.logger.info(msg)
-        if not self.__verbose:
-            print(msg)
+
         file_type = mimetypes.guess_type(self.__track.path)[0]
         _, file_extension = os.path.splitext(self.__track.path)
         if file_type is not None:
@@ -126,19 +129,3 @@ class BySilenceSingleFileProcessor(HasLogger):
     @output_directory.setter
     def output_directory(self, value):
         self.__output_directory = value
-
-    @property
-    def log_filename(self):
-        return self.__log_filename
-
-    @log_filename.setter
-    def log_filename(self, value):
-        self.__log_filename = value
-
-    @property
-    def verbose(self):
-        return self.__verbose
-
-    @verbose.setter
-    def verbose(self, value):
-        self.__verbose = value

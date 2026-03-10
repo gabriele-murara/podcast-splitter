@@ -1,17 +1,15 @@
 import os.path
-from venv import logger
 
 import eyed3
 from boolifyer.booleans import Booleans
+from nano_logger.nano_logger import NanoLogger
 
-from classes.abstracts.has_logger import HasLogger
 from classes.multiple_file_processor import MultipleFileProcessor
 import os
 from dotenv import load_dotenv
-import tempfile
 
 
-class Command(HasLogger):
+class Command:
 
     def __init__(self, **kwargs):
         load_dotenv()
@@ -31,26 +29,19 @@ class Command(HasLogger):
         self.__validation_errors = kwargs.get('validation_errors', [])
         self.__files_to_process = kwargs.get('files_to_process', [])
 
-        log_file_path = os.getenv('LOG_FILE_PATH')
-        if not log_file_path:
-            tmp_path = tempfile.gettempdir()
-            log_file_path = os.path.join(tmp_path, "tracce_a_pezzi.log")
-
-        self.__log_filename = kwargs.get('log_filename', log_file_path)
         self.__verbose = kwargs.get(
             'verbose',
-            Booleans.to_boolean(os.getenv('VERBOSE', default=False))
+            Booleans.to_boolean(os.getenv(
+                'NANO_LOGGER_WRITE_TO_CONSOLE', default=False
+            ))
         )
 
-        # FIXME fix this constructor
-        super().__init__(
-            self.__class__.__name__, self.__log_filename, self.__verbose
-        )
+        self.logger = NanoLogger(write_to_console=self.__verbose)
 
-        if not self.is_verbose():
+        if not self.__verbose:
             msg = "Log messages are written to '{}'. Use --verbose for "
             msg += "display log messages in the standard output"
-            print(msg.format(self.__log_filename))
+            print(msg.format(os.getenv('NANO_LOGGER_FILE_PATH', default=None)))
 
         # FIXME validation doesnt work
         self.__files_to_process = []
@@ -165,9 +156,8 @@ class Command(HasLogger):
             'audio_files': self.__files_to_process,
             'output_directory': self.__output_directory,
             'seconds': self.__seconds,
-            'log_filename': self.__log_filename,
-            'verbose': self.__verbose,
             'split_by_silence': self.__split_by_silence,
+            'verbose': self.__verbose
         }
         processor = MultipleFileProcessor(**processing_mapping)
         processor.process_files()
@@ -227,14 +217,6 @@ class Command(HasLogger):
     @files_to_process.setter
     def files_to_process(self, value):
         self.__files_to_process = value
-
-    @property
-    def log_filename(self):
-        return self.__log_filename
-
-    @log_filename.setter
-    def log_filename(self, value):
-        self.__log_filename = value
 
     @property
     def verbose(self):

@@ -8,3 +8,4 @@ eyed3
 pydub
 python-dotenv
 boolifyer==1.0.0
+nano-logger==1.1.0

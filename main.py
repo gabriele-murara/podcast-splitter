@@ -71,7 +71,9 @@ parser.add_argument(
     help='Shows logs messages to console',
     action='store_true',
     required=False,
-    default=Booleans.to_boolean(os.getenv('VERBOSE', default=False))
+    default=Booleans.to_boolean(os.getenv(
+        'NANO_LOGGER_WRITE_TO_CONSOLE', default=False
+    ))
 )
 
 parser.add_argument(
