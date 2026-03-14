@@ -24,4 +24,4 @@ pyproject["project"]["dependencies"] = dependencies
 with open("pyproject.toml", "w", encoding="utf-8") as f:
     toml.dump(pyproject, f)
 
-print("pyproject.toml aggiornato con le dipendenze da requirements.txt")
+print("pyproject.toml updated with dependencies from requirements.txt")

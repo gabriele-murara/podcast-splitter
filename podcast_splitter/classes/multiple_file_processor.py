@@ -2,8 +2,9 @@ import os
 
 from boolifyer.booleans import Booleans
 
-from classes.by_silence_single_file_processor import BySilenceSingleFileProcessor
-from classes.single_file_processor import SingleFileProcessor
+from podcast_splitter.classes.by_silence_single_file_processor import \
+    BySilenceSingleFileProcessor
+from podcast_splitter.classes.single_file_processor import SingleFileProcessor
 
 
 class MultipleFileProcessor:

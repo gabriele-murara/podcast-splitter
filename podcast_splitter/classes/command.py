@@ -4,9 +4,12 @@ import eyed3
 from boolifyer.booleans import Booleans
 from nano_logger.nano_logger import NanoLogger
 
-from classes.multiple_file_processor import MultipleFileProcessor
+
 import os
 from dotenv import load_dotenv
+
+from podcast_splitter.classes.multiple_file_processor import \
+    MultipleFileProcessor
 
 
 class Command:
@@ -43,7 +46,6 @@ class Command:
             msg += "display log messages in the standard output"
             print(msg.format(os.getenv('NANO_LOGGER_FILE_PATH', default=None)))
 
-        # FIXME validation doesnt work
         self.__files_to_process = []
         if not self.__validate(kwargs):
             msg = "{} validation errors detected:".format(
@@ -63,6 +65,19 @@ class Command:
             self.__track_filename = args['filename']
         if 'directory' in args.keys() and args['directory'] is not None:
             self.__tracks_directory = args['directory']
+
+        if self.__output_directory is None:
+            msg = "Output directory: '{}' cannot be None.".format(
+                self.__output_directory
+            )
+            self.__validation_errors.append(msg)
+            is_valid = False
+        elif not os.path.exists(self.__output_directory):
+            msg = "Output directory: '{}' does not exist.".format(
+                self.__output_directory
+            )
+            self.__validation_errors.append(msg)
+            is_valid = False
 
         if self.__seconds:
             try:
