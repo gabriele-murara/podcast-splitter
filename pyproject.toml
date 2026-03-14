@@ -1,6 +1,6 @@
 [project]
 name = "podcast-splitter"
-version = "1.2.0-dev"
+version = "1.2.0"
 description = "CLI tool to split long audio files"
 requires-python = ">=3.12"
 dependencies = [ "wheel", "setuptools", "eyed3", "pydub", "python-dotenv", "boolifyer==1.0.0", "nano-logger==1.2.0", "toml==0.10.2",]
