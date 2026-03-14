@@ -14,13 +14,12 @@ def main():
 
     parser = argparse.ArgumentParser(
         prog='Podcast Splitter',
-        description='A program that splits audio tracks and apply metadata',
-        epilog='Text at the bottom of help'
+        description='A program that splits audio tracks and applies metadata.'
     )
 
     parser.add_argument(
         '--version',
-        help='Shows version number',
+        help='Show the version number',
         action='version',
         version='{} - v. {}'.format(
             get_app_name(), get_version()
@@ -31,26 +30,26 @@ def main():
         '-f',
         '--filename',
         required=True,
-        help="The filename of the track to split"
+        help="The filename of the track to split."
     )
     parser.add_argument(
-
         '-d',
         '--directory',
-        help="The directory of tracks to split",
+        help="The directory containing tracks to split.",
         required=False
     )
+
     parser.add_argument(
         '-s',
         '--seconds',
         type=int,
         required=False,
         default=60,
-        help="The number of seconds of each splitted track"
+        help="The duration in seconds of each split track."
     )
 
-    by_silence_help = "Split the track by silence. If this flag is passed, "
-    by_silence_help += "--seconds is skipped."
+    by_silence_help = "Split the track by detected silence. If this flag is "
+    by_silence_help += "used, --seconds is ignored."
     parser.add_argument(
         '-b',
         '--by-silence',
@@ -63,7 +62,7 @@ def main():
     parser.add_argument(
         '-o',
         '--output_directory',
-        help="The destination directory of splitted files",
+        help="The destination directory for split files.",
         required=False,
         default=(os.getenv('OUTPUT_DIRECTORY', default=None))
     )
@@ -71,7 +70,7 @@ def main():
     parser.add_argument(
         '-v',
         '--verbose',
-        help='Shows logs messages to console',
+        help='Show log messages in the console.',
         action='store_true',
         required=False,
         default=Booleans.to_boolean(os.getenv(
@@ -81,7 +80,7 @@ def main():
 
     parser.add_argument(
         '--envs',
-        help='Print environments',
+        help='Print environment variables.',
         action=PrintEnvs,
         nargs=0,
         required=False

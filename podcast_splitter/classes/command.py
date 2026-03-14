@@ -44,7 +44,7 @@ class Command:
         if not self.__verbose:
             msg = "Log messages are written to '{}'. Use --verbose for "
             msg += "display log messages in the standard output"
-            print(msg.format(os.getenv('NANO_LOGGER_FILE_PATH', default=None)))
+            print(msg.format(self.logger.log_file_path))
 
         self.__files_to_process = []
         if not self.__validate(kwargs):
